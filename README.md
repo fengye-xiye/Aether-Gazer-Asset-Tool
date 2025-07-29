@@ -6,15 +6,15 @@
 
 ## 主要功能
 
-\- \*\*数据对比\*\*: 对比新旧版本，找出变更的内容。
+- 数据对比: 对比新旧版本，找出变更的内容。
 
-\- \*\*目录浏览器\*\*: 加载资源路径树。
+- 目录浏览器 加载资源路径树。
 
-\- \*\*内置工具\*\*:
+- 内置工具:
 
-\- \*\*UnityFS 抹除工具\*\*: 从文件中抹除 UnityFS 文件头前的空字节。
+	- UnityFS 抹除工具: 从文件中抹除 UnityFS 文件头前的空字节。
 
-\- \*\*LuaJIT 工具\*\*: 处理 LuaJIT 字节码。可用反编译LuaJIT。
+	- LuaJIT 工具: 处理 LuaJIT 字节码。可用反编译LuaJIT。
 
 
 
@@ -22,7 +22,7 @@
 
 
 
-1.  \*\*安装依赖\*\*
+1.  安装依赖
 
 确保你已安装 Python。然后通过 pip 安装必要的库：
 
@@ -36,7 +36,7 @@ ljd来自 https://github.com/AzurLaneTools/ljd
 
 
 
-2.  \*\*运行程序\*\*
+2.  运行程序
 
 打开main.py即可运行。
 
@@ -47,11 +47,11 @@ LuaJIT处理会报错，但文件处理应该是完成的
 
 
 
-\## 许可证 (License)
+## 许可证 (License)
 
 
 
-本项目基于 \*\*GNU General Public License v3.0\*\* 协议开源。详情请见 \[LICENSE](LICENSE) 文件。
+本项目基于GNU General Public License v3.0协议开源。详情请见 \[LICENSE](LICENSE) 文件。
 
 
 
