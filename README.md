@@ -39,7 +39,7 @@ ljd来自 https://github.com/AzurLaneTools/ljd
 2.  运行程序
 
 打开main.py即可运行。
-https://github.com/fengye-xiye/Aether-Gazer-Asset-Tool/blob/main/main.jpg
+![](https://github.com/fengye-xiye/Aether-Gazer-Asset-Tool/blob/main/main.jpg)
 
 
 
