@@ -915,7 +915,7 @@ class LuaJITDecompilerWindow(Toplevel):
 class AssetAnalyzerApp:
     def __init__(self, master):
         self.master = master
-        master.title("深空之眼目文件工具")
+        master.title("大眼文件工具")
         master.geometry("1200x800")
         
         self.db_file_path = None
