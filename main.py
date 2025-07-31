@@ -617,12 +617,11 @@ class UnityFSStripperWindow(Toplevel):
         self.log_text.delete('1.0', tk.END)
         self.log_text.config(state='disabled')
         self.progress_var.set(0)
-
-        version_str = self.luajit_version.get()
-        self.controller._log("LuaJIT 工具：开始处理。")
-        self._log_message(f"源目录: {source}\n目标目录: {dest}\nLuaJIT版本: {version_str}\n" + "="*40 + "\n")
+        self.controller._log("UnityFS 抹除工具：开始处理。")
+        self._log_message(f"源目录: {source}\n目标目录: {dest}\n" + "="*40 + "\n")
         self.controller._run_task(
-            task=lambda progress_queue: self._process_files_worker(source, dest, version_str, progress_queue=progress_queue),
+            # fix
+            task=lambda progress_queue: self._process_files_worker(source, dest, progress_queue=progress_queue),
             on_done=self._on_processing_done,
             on_progress=self._handle_progress
         )
@@ -634,57 +633,65 @@ class UnityFSStripperWindow(Toplevel):
         elif msg_type == 'progress':
             self._update_progress(payload)
 
-    def _process_files_worker(self, source, dest, version_str, progress_queue=None):
-        temp_dir = tempfile.mkdtemp(prefix="ljd_")
+    def _process_files_worker(self, source, dest, progress_queue=None):
         try:
             processed_count, skipped_count, error_count = 0, 0, 0
-            HEADER = b'\x1B\x4C\x4A'
+            HEADER = b'UnityFS'
 
-            progress_queue.put(('log', "预处理Lua字节码文件...\n"))
+            progress_queue.put(('log', "开始扫描并处理UnityFS文件...\n"))
             
             all_files_to_process = []
-            for input_root_str, _, files in os.walk(source):
+            for root, _, files in os.walk(source):
                 for file in files:
-                    all_files_to_process.append(os.path.join(input_root_str, file))
+                    all_files_to_process.append(os.path.join(root, file))
             
             total_files = len(all_files_to_process)
+            if total_files == 0:
+                progress_queue.put(('log', "源目录中没有文件。\n"))
+                return (0, 0, 0)
+
             for i, input_path_str in enumerate(all_files_to_process):
                 input_path = Path(input_path_str)
                 relative_path = input_path.relative_to(source)
-                temp_output_path = Path(temp_dir) / relative_path
-                temp_output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path = Path(dest) / relative_path
+                output_path.parent.mkdir(parents=True, exist_ok=True)
                 
                 try:
-                    progress_queue.put(('log', f"  - 预处理: {input_path.name} ... "))
+                    progress_queue.put(('log', f"  - 处理: {input_path.name} ... "))
                     with open(input_path, 'rb') as f_in:
                         content = f_in.read()
                     
                     index = content.find(HEADER)
+                    # 查找通过后移除前面字节。未发现跳过
                     if index != -1:
-                        cleaned_bytes = content[index:].rstrip(b'\x00')
-                        with open(temp_output_path, 'wb') as f_out:
+                        cleaned_bytes = content[index:]
+                        with open(output_path, 'wb') as f_out:
                             f_out.write(cleaned_bytes)
-                        progress_queue.put(('log', "完成\n"))
+                        progress_queue.put(('log', "完成 (已抹除前置数据)\n"))
                         processed_count += 1
                     else:
-                        progress_queue.put(('log', "跳过 (未找到LuaJIT头)\n"))
+                        shutil.copy2(input_path, output_path)
+                        progress_queue.put(('log', "跳过 (未找到'UnityFS'头)\n"))
                         skipped_count += 1
                 except Exception as e:
                     progress_queue.put(('log', f"失败 ({e})\n"))
-                    self.controller._log(f"LuaJIT工具预处理'{input_path.name}'失败: {e}")
+                    self.controller._log(f"UnityFS工具处理'{input_path.name}'失败: {e}")
                     error_count += 1
                 
                 if total_files > 0:
-                    progress_queue.put(('progress', (i + 1) / total_files * 50))
+                    progress_queue.put(('progress', (i + 1) / total_files * 100))
 
-            progress_queue.put(('log', f"\n完成。 " f"预处理: {processed_count}, 跳过: {skipped_count}, 失败: {error_count}\n" + "="*40 + "\n"))
+            summary_msg = (f"\n处理完成。\n"
+                           f"  - 成功处理 (抹除数据): {processed_count}\n"
+                           f"  - 跳过 (原样复制): {skipped_count}\n"
+                           f"  - 失败: {error_count}\n")
+            progress_queue.put(('log', summary_msg))
             
-            decompiled_count, failed_count = 0, 0
-            progress_queue.put(('progress', 100))
-            return True
-        finally:
-            shutil.rmtree(temp_dir, ignore_errors=True)
-            progress_queue.put(('log', "\n临时文件已清理。\n"))
+            return (processed_count, skipped_count, error_count)
+        except Exception as e:
+            # 捕获任何意外的顶层异常
+            progress_queue.put(('log', f"\n发生严重错误: {e}\n"))
+            return e
 
     def _on_processing_done(self, result):
         self._set_ui_state(False)
