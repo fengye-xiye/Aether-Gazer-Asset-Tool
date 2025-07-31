@@ -16,6 +16,7 @@
 pip install -r requirements.txt
  ```
  未安装对应库会导致部分功能不可用。
+ 
 2.  运行程序
 打开main.py即可运行。导入的json位于游戏的资源目录，名称为assethash_...... .bytes。
 ![](https://github.com/fengye-xiye/Aether-Gazer-Asset-Tool/blob/main/main.jpg)
