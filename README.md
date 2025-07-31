@@ -1,4 +1,4 @@
-## 深空之眼文件工具 
+## 大眼文件工具 
 一个使用 Python的文件分析脚本，其中LuaJIT 工具的原理来自 https://github.com/unk35h/TextDumpScripts_ag
 
 ## 主要功能
@@ -10,15 +10,16 @@
 	
 ## 安装与运行
 1.  安装依赖
-确保你已安装 Python。然后通过 pip 安装必要的库：
+确保已安装 Python。然后通过 pip 安装必要的库：
  ```bash
 
 pip install -r requirements.txt
  ```
+ 未安装对应库会导致部分功能不可用。
 2.  运行程序
-打开main.py即可运行。
+打开main.py即可运行。导入的json位于游戏的资源目录，名称为assethash_...... .bytes。
 ![](https://github.com/fengye-xiye/Aether-Gazer-Asset-Tool/blob/main/main.jpg)
-脚本本部分功能和优化是AI写的，可能会出奇怪的问题，但整体应该是能用的（）
+脚本部分功能和优化是AI写的，可能会出奇怪的问题，但整体应该是能用的（）
 LuaJIT处理会报错，但文件处理应该是完成的
 
 ## 许可证 (License)
